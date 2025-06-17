@@ -12,6 +12,7 @@ body {
   margin: 0;
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   line-height: 1.5;
+  text-shadow: 2px 2px black;
 }
 
 a {
@@ -29,15 +30,18 @@ a {
       max-width: 64rem;
       padding: 2rem 3rem;
       margin: 0 auto;
-      font-size: 1.1rem; } }
+      font-size: 1.1rem;
+      text-shadow: 2px 2px black; } }
   @media screen and (min-width: 42em) and (max-width: 64em) {
     .main-content {
       padding: 2rem 2rem;
-      font-size: 1.1rem; } }
+      font-size: 1.1rem;
+      text-shadow: 2px 2px black; } }
   @media screen and (max-width: 42em) {
     .main-content {
       padding: 2rem 1rem;
-      font-size: 1rem; } }
+      font-size: 1rem;
+      text-shadow: 2px 2px black; } }
   .main-content img {
     max-width: 100%; }
   .main-content h1,
@@ -56,7 +60,8 @@ a {
     padding: 2px 4px;
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
     font-size: 0.9rem;
-    border-radius: 0.3rem; }
+    border-radius: 0.3rem;
+    text-shadow: 2px 2px black; }
   .main-content pre {
     padding: 0.8rem;
     margin-top: 0;
@@ -64,7 +69,8 @@ a {
     font: 1rem Consolas, "Liberation Mono", Menlo, Courier, monospace;
     word-wrap: normal;
     border: solid 1px #454d57;
-    border-radius: 0.3rem; }
+    border-radius: 0.3rem;
+    text-shadow: 2px 2px black; }
     .main-content pre > code {
       padding: 0;
       margin: 0;
@@ -72,7 +78,8 @@ a {
       word-break: normal;
       white-space: pre;
       background: transparent;
-      border: 0; }
+      border: 0;
+      text-shadow: 2px 2px black; }
   .main-content .highlight {
     margin-bottom: 1rem; }
     .main-content .highlight pre {
@@ -85,7 +92,8 @@ a {
     font-size: 0.9rem;
     line-height: 1.45;
     border-radius: 0.3rem;
-    -webkit-overflow-scrolling: touch; }
+    -webkit-overflow-scrolling: touch;
+    text-shadow: 2px 2px black; }
   .main-content pre code,
   .main-content pre tt {
     display: inline;
@@ -134,7 +142,8 @@ a {
       padding: 0;
       margin-top: 1rem;
       font-size: 1rem;
-      font-weight: bold; }
+      font-weight: bold;
+      text-shadow: 2px 2px black; }
     .main-content dl dd {
       padding: 0;
       margin-bottom: 1rem; }
