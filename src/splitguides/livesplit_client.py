@@ -70,7 +70,7 @@ class LivesplitConnection(Prefab):
                 self.sock.settimeout(self.timeout)
                 return True
         elif self.connection_type == "WebSocket":
-            self.websock = websocket.connect(f"ws://{self.server}:{self.port}")
+            self.websock = websocket.connect(f"ws://{self.server}:{self.port}/livesplit")
             return True
         else:
             return False
