@@ -24,6 +24,7 @@ dependencies = [
     "ducktools-classbuilder>=0.7.4",
     "waitress~=3.0",
     "platformdirs~=4.3",
+    "websockets>=16.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
