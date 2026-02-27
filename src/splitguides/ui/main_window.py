@@ -129,7 +129,7 @@ class MainWindow(QMainWindow):
 
         self.render_blank()
 
-        self.client = get_client(self.settings.hostname, self.settings.port)
+        self.client = get_client(self.settings.connection_type, self.settings.hostname, self.settings.port)
 
         self.ls = LivesplitLink(self.client, self)
         self.split_index = 0
@@ -404,11 +404,12 @@ class MainWindow(QMainWindow):
         if result == 1:
             # Kill and restart connection if server ip or port change
             if (
-                self.client.connection.server != self.settings.hostname
+                self.client.connection.connection_type != self.settings.connection_type
+                or self.client.connection.server != self.settings.hostname
                 or self.client.connection.port != self.settings.port
             ):
                 self.ls.close()
-                self.client = get_client(self.settings.hostname, self.settings.port)
+                self.client = get_client(self.settings.connection_type, self.settings.hostname, self.settings.port)
                 self.ls = LivesplitLink(self.client, self)
                 self.ls.start_loops()
 

@@ -1,5 +1,6 @@
 import re
 import socket
+import websockets.sync.client as websocket
 from datetime import timedelta
 import typing
 
@@ -40,36 +41,47 @@ class LivesplitConnection(Prefab):
     """
     Socket based livesplit connection model
     """
+    connection_type: str = "TCP"
     server: str = "localhost"
     port: int = 16834
     timeout: int = 1
     sock: socket.socket | None = attribute(default=None, init=False, repr=False)
+    websock: websocket.ClientConnection | None = attribute(default=None, init=False, repr=False)
 
     def connect(self) -> bool:
         """
         Attempt to connect to the livesplit server
         :return: True if connected, otherwise False
         """
-        self.sock = socket.socket()
-        try:
-            self.sock.connect((self.server, self.port))
-        except ConnectionRefusedError:
-            self.sock.close()
-            self.sock = None
-            return False
-        except socket.gaierror:
-            # Could not resolve hostname
-            self.sock.close()
-            self.sock = None
-            return False
-        else:
-            self.sock.settimeout(self.timeout)
+        if self.connection_type == "TCP":
+            self.sock = socket.socket()
+            try:
+                self.sock.connect((self.server, self.port))
+            except ConnectionRefusedError:
+                self.sock.close()
+                self.sock = None
+                return False
+            except socket.gaierror:
+                # Could not resolve hostname
+                self.sock.close()
+                self.sock = None
+                return False
+            else:
+                self.sock.settimeout(self.timeout)
+                return True
+        elif self.connection_type == "WebSocket":
+            self.websock = websocket.connect(f"ws://{self.server}:{self.port}")
             return True
+        else:
+            return False
 
     def close(self) -> None:
         if self.sock:
             self.sock.close()
             self.sock = None
+        if self.websock:
+            self.websock.close()
+            self.websock = None
 
     def send(self, msg: bytes) -> None:
         """
@@ -80,16 +92,28 @@ class LivesplitConnection(Prefab):
         :param msg: bytes message to send (should end with "\r\n")
         :return:
         """
-        if not self.sock:
-            self.connect()
-        
-        if self.sock:  # Check again in case connection failed
-            try:
-                self.sock.send(msg)
-            except ConnectionAbortedError:
-                self.sock.close()
-                self.sock = None
-                raise ConnectionAbortedError("The connection has been closed by the host")
+        if self.connection_type == "TCP":
+            if not self.sock:
+                self.connect()
+            
+            if self.sock:  # Check again in case connection failed
+                try:
+                    self.sock.send(msg)
+                except ConnectionAbortedError:
+                    self.sock.close()
+                    self.sock = None
+                    raise ConnectionAbortedError("The connection has been closed by the host")
+        elif self.connection_type == "WebSocket":
+            if not self.websock:
+                self.connect()
+
+            if self.websock:  # Check again in case connection failed
+                try:
+                    self.websock.send(msg)
+                except ConnectionAbortedError:
+                    self.websock.close()
+                    self.websock = None
+                    raise ConnectionAbortedError("The connection has been closed by the host")
 
     def receive(self) -> bytes:
         """
@@ -98,30 +122,53 @@ class LivesplitConnection(Prefab):
 
         :return: bytes received from the server
         """
-        if not self.sock:
-            self.connect()
-        
-        if self.sock:
-            try:
-                data_received = self.sock.recv(BUFFER_SIZE)
-            except socket.timeout:
-                raise TimeoutError(
-                    "No response received from the server within "
-                    f"the timeout period ({self.timeout}s)"
-                )
-            except OSError:
-                self.sock.close()
-                self.sock = None
-                raise ConnectionError("The connection has been closed by the host")
+        if self.connection_type == "TCP":
+            if not self.sock:
+                self.connect()
+            
+            if self.sock:
+                try:
+                    data_received = self.sock.recv(BUFFER_SIZE)
+                except socket.timeout:
+                    raise TimeoutError(
+                        "No response received from the server within "
+                        f"the timeout period ({self.timeout}s)"
+                    )
+                except OSError:
+                    self.sock.close()
+                    self.sock = None
+                    raise ConnectionError("The connection has been closed by the host")
 
-            if data_received == b"":
-                self.sock.close()
-                self.sock = None
-                raise ConnectionError("The connection has been closed by the host")
+                if data_received == b"":
+                    self.sock.close()
+                    self.sock = None
+                    raise ConnectionError("The connection has been closed by the host")
 
-            return data_received
-        
-        return b""
+                return data_received
+            
+            return b""
+        elif self.connection_type == "WebSocket":
+            if not self.websock:
+                self.connect()
+
+            if self.websock:
+                try:
+                    data_received = self.websock.recv(BUFFER_SIZE, False)
+                except OSError:
+                    self.websock.close()
+                    self.websock = None
+                    raise ConnectionError("The connection has been closed by the host")
+
+                if data_received == b"":
+                    self.websock.close()
+                    self.websock = None
+                    raise ConnectionError("The connection has been closed by the host")
+
+                return data_received
+            
+            return b""
+        else:
+            raise ConnectionError("Unknown connection type")
 
 
 class LivesplitMessaging(Prefab):
@@ -296,8 +343,9 @@ class LivesplitMessaging(Prefab):
 
 
 def get_client(
+        connection_type: str = "TCP",
         server: str = "localhost",
         port: int = 16834,
         timeout: int = 1
 ) -> LivesplitMessaging:
-    return LivesplitMessaging(connection=LivesplitConnection(server, port, timeout))
+    return LivesplitMessaging(connection=LivesplitConnection(connection_type, server, port, timeout))

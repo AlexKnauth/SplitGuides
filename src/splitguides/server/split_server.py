@@ -58,7 +58,7 @@ def split():
 
         current_note_index = None
         last_update = 0
-        client = get_client(settings.hostname, settings.port)
+        client = get_client(settings.connection_type, settings.hostname, settings.port)
         connected = client.connect()
         # Note if the previous state was not connected
         disconnected = True
@@ -74,7 +74,7 @@ def split():
                     connected = client.connect()
                     yield (
                         f"data: <h2>Trying to connect to livesplit.</h2>"
-                        f"<h3>Make sure Livesplit server is running.</h3>{data}\n\n"
+                        f"<h3>Make sure Livesplit {settings.connection_type} server is running.</h3>{data}\n\n"
                     )
                 else:
                     if current_note_index != new_index or disconnected:
@@ -100,7 +100,7 @@ def split():
                 connected = client.connect()
                 yield (
                     f"data: <h2>Trying to connect to livesplit.</h2>"
-                    f"<h3>Make sure Livesplit server is running.</h3>{data}\n\n"
+                    f"<h3>Make sure Livesplit {settings.connection_type} server is running.</h3>{data}\n\n"
                 )
             time.sleep(0.5)
 

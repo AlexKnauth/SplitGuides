@@ -71,6 +71,7 @@ class BaseSettings(metaclass=ABCMeta):
     output_file: Path = attribute(serialize=False)
 
     # Networking Settings
+    connection_type: str = "TCP"
     hostname: str = "localhost"
     port: int = 16834
 
