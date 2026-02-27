@@ -69,6 +69,7 @@ class SettingsDialog(QDialog):
         self.ui.bgcolor_edit.setValidator(color_validator)
 
     def fill_settings(self):
+        self.ui.connection_type_comboBox.setCurrentText(self.settings.connection_type)
         self.ui.hostname_edit.setText(self.settings.hostname)
         self.ui.port_edit.setText(str(self.settings.port))
         self.ui.previous_edit.setText(str(self.settings.previous_splits))
@@ -90,6 +91,7 @@ class SettingsDialog(QDialog):
         self.previoussplitkey = self.settings.decrease_offset_hotkey
 
     def store_settings(self):
+        self.settings.connection_type = self.ui.connection_type_comboBox.currentText()
         self.settings.hostname = self.ui.hostname_edit.text()
         self.settings.port = int(self.ui.port_edit.text())
         self.settings.previous_splits = int(self.ui.previous_edit.text())
